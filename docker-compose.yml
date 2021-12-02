@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  api:
+    build: ./api/
+    volumes:
+      - ./api/app/:/usr/src/transaction/api/app
+    ports:
+      - 8000:8000
+    env_file:
+      - .env
+    depends_on:
+      - db
+  web:
+    build: ./ui/
+    volumes:
+      - ./ui/:/usr/src/transaction/ui/
+    ports:
+      - 3000:3000
+    depends_on:
+      - api
+  scheduler:
+    build: ./scheduler/
+    volumes:
+      - ./scheduler/:/usr/src/transaction/scheduler/
+    depends_on: 
+      - api
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment: 
+      - POSTGRES_PASSWORD=$DB_PASSWORD
+      - POSTGRES_USER=$DB_USER
+      - POSTGRES_DB=$DB_NAME
+    ports:
+      - 5432:5432
+
+volumes:
+  postgres_data:
